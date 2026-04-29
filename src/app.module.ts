@@ -1,27 +1,39 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { AnalyticsModule } from './analytics/analytics.module';
+import { AuthModule } from './auth/auth.module';
+import jwtConfig from './config/jwt.config';
+import postgresConfig from './config/postgres.config';
 import { UserModule } from './user/user.module';
 import { VideoModule } from './video/video.module';
-import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      load: [postgresConfig, jwtConfig],
+    }),
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
-        type: 'postgres',
-        host: config.get('DB_HOST'),
-        port: config.get<number>('DB_PORT'),
-        username: config.get('DB_USERNAME'),
-        password: config.get('DB_PASSWORD'),
-        database: config.get('DB_NAME'),
-        autoLoadEntities: true,
-        synchronize: true,
-        logging: true,
-      }),
+      useFactory: (configService: ConfigService) => {
+        let obj: TypeOrmModuleOptions = {
+          type: 'postgres',
+          host: configService.get('postgres.host'),
+          port: configService.get<number>('postgres.port'),
+          database: configService.get('postgres.database'),
+          username: configService.get('postgres.username'),
+          password: configService.get('postgres.password'),
+          autoLoadEntities: true,
+        };
+        if (configService.get('STAGE') === 'local') {
+          obj = Object.assign(obj, {
+            synchronize: true,
+            logging: true,
+          });
+        }
+        return obj;
+      },
     }),
     AuthModule,
     UserModule,
