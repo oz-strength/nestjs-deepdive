@@ -2,7 +2,6 @@ import { Controller, Get, Param, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiExtraModels, ApiTags } from '@nestjs/swagger';
 import { Roles } from 'src/common/decorator/role.decorator';
 import { ApiGetItemsResponse, ApiGetResponse } from 'src/common/decorator/swagger.decorator';
-import { User, UserAfterAuth } from 'src/common/decorator/user.decorator';
 import { PageReqDto } from 'src/common/dto/req.dto';
 import { PageResDto } from 'src/common/dto/res.dto';
 import { FindUserReqDto } from './dto/req.dto';
@@ -20,9 +19,15 @@ export class UserController {
   @ApiGetItemsResponse(FindUserResDto)
   @Roles(Role.Admin)
   @Get()
-  findAll(@Query() { page, size }: PageReqDto, @User() user: UserAfterAuth) {
-    console.log(user);
-    return this.userService.findAll();
+  async findAll(@Query() { page, size }: PageReqDto): Promise<FindUserResDto[]> {
+    const users = await this.userService.findAll(page, size);
+    return users.map(({ id, email, createdAt }) => {
+      return {
+        id,
+        email,
+        createdAt: createdAt.toISOString(),
+      };
+    });
   }
 
   @ApiBearerAuth()

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Logger, Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
@@ -31,6 +31,7 @@ import { JwtStrategy } from './jwt.strategy';
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
     },
+    Logger,
   ],
   controllers: [AuthController],
   exports: [AuthService],
