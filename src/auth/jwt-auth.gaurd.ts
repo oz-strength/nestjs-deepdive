@@ -1,4 +1,4 @@
-import { ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
+import { ExecutionContext, Inject, Injectable, Logger, LoggerService, UnauthorizedException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { AuthGuard } from '@nestjs/passport';
@@ -14,6 +14,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     private reflector: Reflector,
     private jwtService: JwtService,
     private userService: UserService,
+    @Inject(Logger) private readonly logger: LoggerService,
   ) {
     super();
   }
@@ -33,8 +34,9 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     const decoded = token ? this.jwtService.decode(token) : null;
 
     if (url !== '/api/auth/refresh' && decoded?.tokenType === 'refresh') {
-      console.error('Refresh token cannot be used to access protected routes');
-      throw new UnauthorizedException();
+      const error = new UnauthorizedException('accessToken is required');
+      this.logger.error(error.message, error.stack);
+      throw error;
     }
 
     const requiredRoles = this.reflector.getAllAndOverride<Role[]>(ROLES_KEY, [
