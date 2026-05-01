@@ -21,6 +21,7 @@ export class UserController {
   @Roles(Role.Admin)
   @Get()
   async findAll(@Query() { page, size }: PageReqDto): Promise<FindUserResDto[]> {
+    // throw new Error('Test Sentry');
     const users = await this.userService.findAll(page, size);
     return users.map(({ id, email, createdAt }) => {
       return {
