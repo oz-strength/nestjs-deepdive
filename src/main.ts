@@ -1,4 +1,5 @@
 import { Logger, ValidationPipe } from '@nestjs/common';
+import { execSync } from 'child_process';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerCustomOptions, SwaggerModule } from '@nestjs/swagger';
 import { utilities, WinstonModule } from 'nest-winston';
@@ -46,8 +47,21 @@ async function bootstrap() {
 
   app.useGlobalInterceptors(new TransformInterceptor());
 
-  await app.listen(port);
-  Logger.log(`STAGE: ${process.env.STAGE}`);
-  Logger.log(`listening on port ${port}`);
+  for (let attempt = 1; attempt <= 5; attempt++) {
+    try {
+      await app.listen(port);
+      Logger.log(`STAGE: ${process.env.STAGE}`);
+      Logger.log(`listening on port ${port}`);
+      break;
+    } catch (e) {
+      if (e.code === 'EADDRINUSE' && attempt < 5) {
+        Logger.warn(`Port ${port} in use, killing process and retrying... (${attempt}/5)`);
+        execSync(`npx kill-port ${port}`, { stdio: 'ignore' });
+        await new Promise((r) => setTimeout(r, 500));
+      } else {
+        throw e;
+      }
+    }
+  }
 }
 bootstrap();
