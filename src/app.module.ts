@@ -1,20 +1,32 @@
 import { Logger, MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ThrottlerModule } from '@nestjs/throttler';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { AuthModule } from './auth/auth.module';
 import { LoggerMiddleware } from './common/middleware/logger.middleware';
 import jwtConfig from './config/jwt.config';
 import postgresConfig from './config/postgres.config';
+import sentryConfig from './config/sentry.config';
+import swaggerConfig from './config/swagger.config';
 import { PrettyLogger } from './config/typeorm-logger';
 import { UserModule } from './user/user.module';
 import { VideoModule } from './video/video.module';
+import { HealthModule } from './health/health.module';
 
 @Module({
   imports: [
+    ThrottlerModule.forRoot({
+      throttlers: [
+        {
+          ttl: 60000,
+          limit: 10,
+        },
+      ],
+    }),
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [postgresConfig, jwtConfig],
+      load: [postgresConfig, jwtConfig, swaggerConfig, sentryConfig],
     }),
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
@@ -43,6 +55,7 @@ import { VideoModule } from './video/video.module';
     UserModule,
     VideoModule,
     AnalyticsModule,
+    HealthModule,
   ],
   providers: [Logger],
 })
