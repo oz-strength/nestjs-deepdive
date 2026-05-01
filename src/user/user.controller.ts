@@ -1,5 +1,6 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import { Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiExtraModels, ApiTags } from '@nestjs/swagger';
+import { Public } from 'src/common/decorator/public.decorator';
 import { Roles } from 'src/common/decorator/role.decorator';
 import { ApiGetItemsResponse, ApiGetResponse } from 'src/common/decorator/swagger.decorator';
 import { PageReqDto } from 'src/common/dto/req.dto';
@@ -35,5 +36,11 @@ export class UserController {
   @Get(':id')
   findOne(@Param('id') { id }: FindUserReqDto) {
     return this.userService.findOne(id);
+  }
+
+  @Public()
+  @Post('bulk')
+  createBulk() {
+    return this.userService.createBulk();
   }
 }
