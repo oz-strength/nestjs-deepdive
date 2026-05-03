@@ -12,5 +12,6 @@ import { VideoService } from './video.service';
   imports: [TypeOrmModule.forFeature([Video]), CqrsModule],
   controllers: [VideoController],
   providers: [VideoService, CreateVideoHandler, VideoCreatedHandler, FindVideosQueryHandler],
+  exports: [VideoService],
 })
 export class VideoModule {}

@@ -5,14 +5,16 @@ import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { AuthModule } from './auth/auth.module';
 import { LoggerMiddleware } from './common/middleware/logger.middleware';
+import emailConfig from './config/email.config';
 import jwtConfig from './config/jwt.config';
 import postgresConfig from './config/postgres.config';
 import sentryConfig from './config/sentry.config';
 import swaggerConfig from './config/swagger.config';
 import { PrettyLogger } from './config/typeorm-logger';
+import { EmailModule } from './email/email.module';
+import { HealthModule } from './health/health.module';
 import { UserModule } from './user/user.module';
 import { VideoModule } from './video/video.module';
-import { HealthModule } from './health/health.module';
 
 @Module({
   imports: [
@@ -26,7 +28,7 @@ import { HealthModule } from './health/health.module';
     }),
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [postgresConfig, jwtConfig, swaggerConfig, sentryConfig],
+      load: [postgresConfig, jwtConfig, swaggerConfig, sentryConfig, emailConfig],
     }),
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
@@ -56,6 +58,7 @@ import { HealthModule } from './health/health.module';
     VideoModule,
     AnalyticsModule,
     HealthModule,
+    EmailModule,
   ],
   providers: [Logger],
 })
