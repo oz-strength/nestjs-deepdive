@@ -1,5 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
+import { writeFile } from 'fs/promises';
+import { join } from 'path';
 import { User } from 'src/user/entity/user.entity';
 import { DataSource } from 'typeorm';
 import { CreateVideoCommand } from './command/create-video.command';
@@ -37,6 +39,7 @@ export class CreateVideoHandler implements ICommandHandler<CreateVideoCommand> {
   }
 
   private async uploadVideo(id: string, extension: string, buffer: Buffer) {
-    console.log('upload video');
+    const filePath = join(process.cwd(), 'video-storage', `${id}.${extension}`);
+    await writeFile(filePath, buffer);
   }
 }
