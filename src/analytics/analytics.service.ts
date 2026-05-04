@@ -10,8 +10,8 @@ export class AnalyticsService {
     private readonly emailService: EmailService,
   ) {}
 
-  // @Cron(CronExpression.EVERY_DAY_AT_10AM)
-  @Cron(CronExpression.EVERY_MINUTE)
+  @Cron(CronExpression.EVERY_DAY_AT_10AM)
+  // @Cron(CronExpression.EVERY_MINUTE)
   async handleEmailCron() {
     Logger.log('Email task called');
     const videos = await this.videoService.findTop5Download();
