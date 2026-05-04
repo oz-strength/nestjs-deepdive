@@ -1,0 +1,32 @@
+volumes:
+  postgres_data:
+  video_storage:
+
+services:
+  app:
+    image: ${IMAGE_TAG}
+    ports:
+      - '3000:3000'
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+    depends_on:
+      - postgres
+    volumes:
+      - video_storage:/app/video-storage
+    restart: always
+
+  postgres:
+    image: postgres:14.7
+    container_name: postgres
+    ports:
+      - '5434:5432'
+    environment:
+      - POSTGRES_USER=${POSTGRES_USERNAME}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DATABASE}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: always
