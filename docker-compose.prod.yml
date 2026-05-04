@@ -1,11 +1,26 @@
 volumes:
   postgres_data:
+  video_storage:
 
 services:
+  app:
+    image: ${IMAGE_TAG}
+    ports:
+      - '3000:3000'
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+    depends_on:
+      - postgres
+    volumes:
+      - video_storage:/app/video-storage
+    restart: always
+
   postgres:
     image: postgres:14.7
     container_name: postgres
-    # 5432로 포워딩 할 경우 host os에 설치된 postgres와 겹칠 수 있으므로 host에 설치된 postgres를 내려야함
     ports:
       - '5434:5432'
     environment:
